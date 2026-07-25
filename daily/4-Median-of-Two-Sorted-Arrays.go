@@ -1,69 +1,48 @@
 package daily
 
+import "math"
+
 func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
-	if len(nums1) > len(nums2) {
-		return findMedianSortedArrays(nums2, nums1)
+	A, B := nums1, nums2
+	if len(A) > len(B) {
+		A, B = B, A
 	}
 
-	m, n := len(nums1), len(nums2)
-	leftSize := (m + n + 1) / 2
+	m, n := len(A), len(B)
+	half := (m + n) / 2
+	left, right := 0, m
 
-	lo, hi := 0, m
-	for lo <= hi {
-		mid := (lo + hi) / 2
-		mid2 := leftSize - mid
+	for left <= right {
+		i := (left + right) / 2
+		j := half - i
 
-		var left1 int
-		var right1 int
-		var left2 int
-		var right2 int
-
-		if mid == 0 {
-			left1 = -1 << 60
-		} else {
-			left1 = nums1[mid-1]
+		Aleft := math.MinInt
+		if i > 0 {
+			Aleft = A[i-1]
+		}
+		Aright := math.MaxInt
+		if i < m {
+			Aright = A[i]
+		}
+		Bleft := math.MinInt
+		if j > 0 {
+			Bleft = B[j-1]
+		}
+		Bright := math.MaxInt
+		if j < n {
+			Bright = B[j]
 		}
 
-		if mid2 == 0 {
-			left2 = -1 << 60
-		} else {
-			left2 = nums2[mid2-1]
-		}
-
-		if mid == m {
-			right1 = 1 << 60
-		} else {
-			right1 = nums1[mid]
-		}
-
-		if mid2 == n {
-			right2 = 1 << 60
-		} else {
-			right2 = nums2[mid2]
-		}
-
-		if left1 <= right2 && left2 <= right1 {
-			if (m+n)%2 == 1 {
-				return float64(max(left1, left2))
+		if Aleft <= Bright && Bleft <= Aright {
+			if (m+n)%2 != 0 {
+				return float64(min(Aright, Bright))
 			}
-
-			maxLeft := max(left1, left2)
-			minRight := min(right1, right2)
-			return float64(maxLeft+minRight) / 2.0
-		}
-
-		if left1 > right2 {
-			hi = mid - 1
+			return float64(max(Aleft, Bleft)+min(Aright, Bright)) / 2.0
+		} else if Aleft > Bright {
+			right = i - 1
 		} else {
-			lo = mid + 1
+			left = i + 1
 		}
 	}
 	return 0.0
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
